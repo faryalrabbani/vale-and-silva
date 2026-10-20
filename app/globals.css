@@ -2,26 +2,153 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+/* ============================================
+   BASE — resets, default typography, scroll
+   ============================================ */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    /* Lenis handles smooth scroll — disable native to avoid double smoothness */
+    scroll-behavior: auto;
+  }
+
+  body {
+    background-color: theme('colors.cream');
+    color: theme('colors.charcoal');
+    font-family: theme('fontFamily.sans');
+    font-feature-settings: 'ss01', 'cv11';
+    overflow-x: hidden;
+  }
+
+  /* Selection — subtle accent */
+  ::selection {
+    background-color: theme('colors.accent.DEFAULT');
+    color: theme('colors.cream');
+  }
+
+  /* Headings default to serif */
+  h1, h2, h3, h4 {
+    font-family: theme('fontFamily.serif');
+    font-weight: 400;
+    color: theme('colors.charcoal');
+  }
+
+  /* Lenis: required base styles */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* ============================================
+   COMPONENTS — reusable patterns
+   ============================================ */
+@layer components {
+  /* Standard section wrapper — huge breathing room */
+  .section {
+    padding-top: theme('spacing.section');
+    padding-bottom: theme('spacing.section');
+  }
+
+  /* Editorial container */
+  .container-editorial {
+    max-width: theme('maxWidth.editorial');
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .container-editorial {
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    .container-editorial {
+      padding-left: 5rem;
+      padding-right: 5rem;
+    }
+  }
+
+  /* Small uppercase label (the "eyebrow" text above headings) */
+  .eyebrow {
+    font-family: theme('fontFamily.sans');
+    font-size: theme('fontSize.eyebrow.0');
+    letter-spacing: theme('letterSpacing.widest');
+    text-transform: uppercase;
+    color: theme('colors.stone');
+  }
+
+  /* Underline link that animates on hover */
+  .link-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* Image reveal container — used by Reveal component */
+  .img-reveal {
+    overflow: hidden;
+    position: relative;
+  }
 }
 
+/* ============================================
+   UTILITIES — one-off helpers
+   ============================================ */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Hairline dividers */
+  .border-hairline {
+    border-color: theme('colors.line');
+  }
+
+  /* Hide scrollbar but keep scroll */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
