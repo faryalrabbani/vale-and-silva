@@ -40,7 +40,7 @@ export default function Nav() {
     ? 'text-cream hover:text-cream'
     : 'text-charcoal/80 hover:text-charcoal'
   const wordmarkColor = lightMode ? 'text-cream' : 'text-charcoal'
-  const burgerColor = lightMode ? 'bg-cream' : 'bg-charcoal'
+  const burgerColor = (lightMode && !menuOpen) ? 'bg-cream' : 'bg-charcoal'
 
   return (
     <>
@@ -58,7 +58,7 @@ export default function Nav() {
           {/* Wordmark */}
           <Link
             href="/"
-            className={`font-serif text-xl md:text-2xl tracking-editorial transition-colors duration-500 ${wordmarkColor}`}
+            className={`font-serif text-xl md:text-2xl tracking-editorial transition-colors duration-500 ${menuOpen ? 'text-charcoal' : wordmarkColor}`}
             aria-label="Studio — Home"
           >
            Vale <span className="text-accent">&</span> Silva

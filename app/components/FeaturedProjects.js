@@ -2,71 +2,29 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRef, useEffect } from 'react'
 import Reveal from './Reveal'
-import { projects, featuredSlugs } from '../../lib/projects'
+import { projects } from '../../lib/projects'
 
-// Pick which projects to show on the homepage row
-
-
-// Center = tallest. Sides step down. [height in vh]
-// index:  0     1     2(center)  3     4
-const heights = ['44vh', '52vh', '60vh', '52vh', '44vh']
+const featuredSlugs = [
+  'casa-lumen',
+  'maison-verre',
+  'atelier-nord',
+  'house-of-shade',
+  'villa-silentia',
+]
 
 export default function FeaturedProjects() {
-  const scrollRef = useRef(null)
-
   const featured = featuredSlugs
     .map((slug) => projects.find((p) => p.slug === slug))
     .filter(Boolean)
 
-  // Drag-to-scroll on desktop
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-
-    let isDown = false
-    let startX = 0
-    let scrollLeft = 0
-
-    const onDown = (e) => {
-      isDown = true
-      el.classList.add('cursor-grabbing')
-      startX = e.pageX - el.offsetLeft
-      scrollLeft = el.scrollLeft
-    }
-    const onLeave = () => {
-      isDown = false
-      el.classList.remove('cursor-grabbing')
-    }
-    const onUp = () => {
-      isDown = false
-      el.classList.remove('cursor-grabbing')
-    }
-    const onMove = (e) => {
-      if (!isDown) return
-      e.preventDefault()
-      const x = e.pageX - el.offsetLeft
-      const walk = (x - startX) * 1.5
-      el.scrollLeft = scrollLeft - walk
-    }
-
-    el.addEventListener('mousedown', onDown)
-    el.addEventListener('mouseleave', onLeave)
-    el.addEventListener('mouseup', onUp)
-    el.addEventListener('mousemove', onMove)
-
-    return () => {
-      el.removeEventListener('mousedown', onDown)
-      el.removeEventListener('mouseleave', onLeave)
-      el.removeEventListener('mouseup', onUp)
-      el.removeEventListener('mousemove', onMove)
-    }
-  }, [])
+  // If we don't have 5 projects for some reason, fallback
+  if (featured.length < 5) return null
 
   return (
-    <section className="section bg-cream overflow-hidden">
+    <section className="section bg-cream">
       <div className="container-editorial">
+        {/* Header row */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-14 md:mb-20">
           <div>
             <Reveal>
@@ -87,56 +45,76 @@ export default function FeaturedProjects() {
             </Link>
           </Reveal>
         </div>
-      </div>
 
-      {/* Horizontal scroll row — bleeds to viewport edges */}
-      <div
-        ref={scrollRef}
-        className="no-scrollbar flex items-end gap-4 md:gap-5 overflow-x-auto cursor-grab select-none px-6 md:px-12 xl:px-20"
-      >
-        {featured.map((project, i) => (
-          <ProjectRowCard
-            key={project.slug}
-            project={project}
-            height={heights[i] || '52vh'}
-          />
-        ))}
+        {/* Custom Asymmetrical Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+          
+          {/* 1. Large Hero Project (Left) */}
+          <div className="md:col-span-8">
+            <Reveal>
+              <ProjectCard project={featured[0]} aspect="aspect-[4/3] md:aspect-[16/10]" size="large" />
+            </Reveal>
+          </div>
 
-        <div className="flex-shrink-0 w-4 md:w-12" aria-hidden />
+          {/* 2. Tall Portrait Project (Right) */}
+          <div className="md:col-span-4">
+            <Reveal delay={0.1}>
+              <ProjectCard project={featured[1]} aspect="aspect-[4/5] md:aspect-[3/4]" size="large" />
+            </Reveal>
+          </div>
+
+          {/* 3, 4, 5. Bottom Row - Three equal projects */}
+          <div className="md:col-span-4">
+            <Reveal delay={0.2}>
+              <ProjectCard project={featured[2]} aspect="aspect-[4/3]" size="small" />
+            </Reveal>
+          </div>
+          <div className="md:col-span-4">
+            <Reveal delay={0.3}>
+              <ProjectCard project={featured[3]} aspect="aspect-[4/3]" size="small" />
+            </Reveal>
+          </div>
+          <div className="md:col-span-4">
+            <Reveal delay={0.4}>
+              <ProjectCard project={featured[4]} aspect="aspect-[4/3]" size="small" />
+            </Reveal>
+          </div>
+
+        </div>
       </div>
     </section>
   )
 }
 
-function ProjectRowCard({ project, height }) {
+function ProjectCard({ project, aspect, size = 'small' }) {
+  const titleSize = size === 'large' ? 'text-3xl md:text-4xl' : 'text-xl md:text-2xl'
+  
   return (
     <Link
       href={`/work/${project.slug}`}
-      className="group flex-shrink-0 flex flex-col"
-      style={{ width: 'clamp(180px, 17vw, 260px)' }}
+      className="group block"
       aria-label={`View project: ${project.title}`}
     >
-      <div
-        className="relative overflow-hidden bg-line w-full"
-        style={{ height }}
-      >
+      <div className={`relative overflow-hidden bg-line ${aspect}`}>
         <Image
           src={project.cover}
           alt={project.title}
           fill
-          sizes="(max-width: 768px) 50vw, 20vw"
-          className="object-cover transition-transform duration-[1200ms] ease-editorial group-hover:scale-[1.04]"
-          draggable={false}
+          sizes={size === 'large' ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
+          className="object-cover transition-transform duration-[1200ms] ease-editorial group-hover:scale-[1.03]"
         />
         <div className="absolute inset-0 bg-ink/0 group-hover:bg-ink/10 transition-colors duration-700 ease-editorial" />
       </div>
 
-      <div className="mt-4 md:mt-5">
-        <h3 className="font-serif text-base md:text-lg text-charcoal leading-snug">
-          {project.title}
-        </h3>
-        <p className="mt-1.5 text-[0.65rem] tracking-[0.15em] uppercase text-stone">
-          {project.location} · {project.year}
+      <div className="mt-5 md:mt-6 flex flex-col md:flex-row md:items-start justify-between gap-2 md:gap-4">
+        <div>
+          <h3 className={`font-serif ${titleSize} text-charcoal leading-snug`}>
+            {project.title}
+          </h3>
+          <p className="mt-1 text-sm text-stone">{project.location}</p>
+        </div>
+        <p className="text-xs tracking-widest uppercase text-stone whitespace-nowrap pt-1 md:pt-2">
+          {project.year}
         </p>
       </div>
     </Link>
